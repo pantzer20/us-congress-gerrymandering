@@ -1,0 +1,220 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+.feature {
+    fill: red;
+    stroke: black;
+    stroke-width: 0.14px;
+}
+#panel {
+    height: 100px;
+    background-color: black;
+}
+body > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.map {
+    height: 100%;
+}
+#map-div {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* EXTRACT */
+
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: 'Mukta Mahee', sans-serif;
+}
+body {
+    padding: 0;
+    margin: 0;
+}
+.title {
+    margin: 4px 8px 2px 0px;
+    font-size: 130%;
+    font-weight: bold;
+}
+.subtitle {
+    margin: 2px 8px 4px 0px;
+}
+header, footer {
+    width: 100%;
+    z-index: 1000;
+}
+header {
+    padding: 8px 16px 0 16px;
+}
+select {
+    border: none;
+    height: 2em;
+    width: 100%;
+    min-width: 8.5em;
+    margin-bottom: 4px;
+}
+.w3-hide-small p {
+    text-align: left;
+}
+#mode-hint, #year-hint {
+    font-variant-caps: small-caps;
+}
+#mode-hint {
+    text-align: center;
+}
+.w3-modal {
+    z-index: 1000;
+}
+@media (max-width: 600px) {
+    #mode-hint {
+        float: left;
+    }
+    .w3-row > div {
+        margin-bottom: 6px;
+    }
+    .w3-row > div:last-child {
+        margin-bottom: 0;
+    }
+    .title {
+        text-align: center;
+    }
+    #legend {
+        justify-content: center !important;
+    }
+    #legend-div {
+        border-top-right-radius: 0 !important;
+    }
+    footer {
+        display: block !important;
+    }
+    #narrative, #toggle-narrative-div {
+        display: none;
+    }
+}
+@media (min-width: 601px) {
+    .w3-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .w3-row > div, #narrative {
+        margin: 0 1em;
+    }
+    #year-select-labels {
+        margin: 4px 0;
+    }
+}
+.w3-row {
+    margin-bottom: 8px;
+}
+.close {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    font-size: 2em;
+    cursor: pointer;
+}
+label {
+    display: block;
+}
+.citation {
+    text-indent: 2em hanging;
+}
+.citation a {
+    word-break: break-word;
+}
+.w3-modal-content {
+    margin-bottom: 100px;
+}
+#attribution-div {
+    flex: 0 1 100%;
+    padding: 4px 8px;
+    pointer-events: all;
+}
+#attribution {
+    text-align: center;
+    font-size: 80%;
+    margin: 0;
+}
+#legend-div {
+    border-top-right-radius: 8px;
+}
+#legend-div > p {
+    padding-top: 4px;
+    margin: 0;
+    font-variant: small-caps;
+    text-align: center;
+}
+#legend {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding: 8px 12px;
+}
+#legend p {
+    margin: 0;
+    text-align: center;
+}
+.top-circle, .bottom-circle, .circle {
+    position: relative;
+    width: 100%;
+    padding-top: 50%;
+    height: 100%;
+}
+.circle {
+    padding-top: 100% !important;
+    background: #4af;
+    border-radius: 70px;
+}
+.top-circle {
+    background: #4af;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+}
+.bottom-circle {
+    background: #f64;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+}
+.circle-sign {
+    line-height: 0;
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.circle-sign.small {
+    font-size: 10px;
+}
+.circle-sign.large {
+    font-size: 24px;
+}
+.absolute {
+    display: none;
+}
+footer {
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+}
+#narrative {
+    line-height: 1.1;
+    font-size: 14px;
+    cursor: pointer;
+}
+#toggle-narrative-div {
+    text-align: center;
+}
+#toggle-narrative {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}

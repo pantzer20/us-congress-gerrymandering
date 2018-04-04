@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="author" content="Johnathon Pantzlaff">
+        <title>Stacking the Deck: Indicators of gerrymandering in United States congressional districts</title>
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta+Mahee">
+        <link rel="stylesheet" href="css/w3.css">
+        <link rel="stylesheet" href="css/color.css">
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    <body>
+        <script src="lib/topojson-client.js"></script>
+        <script src="lib/d3.v4.min.js"></script>
+        <script src="lib/d3-queue.v3.min.js"></script>
+        <script src="lib/jquery-3.3.1.slim.min.js"></script>
+        <script src="js/main.js"></script>
+        <div>
+            <!-- HEADER -->
+            <header class="w3-theme-d4">
+                <div class="w3-row">
+                    <!-- Title/subtitle -->
+                    <div class="w3-col s12 m8 l8">
+                        <p class="title">Stacking the Deck</p>
+                        <p class="subtitle w3-hide-small">Indicators of gerrymandering in United States congressional districts</p>
+                    </div>
+                    <!-- Display mode selector -->
+                    <div class="w3-col s12 m4 l4">
+                        <select id="mode-select" class="w3-theme-d2 w3-round">
+                            <option selected value="lean">Cook Partisan Voting Index</option>
+                            <option value="margin_rep">Margin of Representative Victory</option>
+                            <option value="margin_pres">Margin of Presidential Victory</option>
+                            <option value="complexity">Geographic Complexity</option>
+                            <option value="raceDiff">Racial Anomaly</option>
+                            <option value="wealth">Income Anomaly</option>
+                        </select>
+                        <label id="mode-hint" for="mode-select">Statistic</label>
+                    </div>
+                </div>
+                <!-- Narrative text -->
+                <div id="narrative">
+                    <p>On the second Tuesday of every other November, a long-running American tradition continues: millions of Americans cast ballots to determine which political hopefuls will (and will not) be present in the next Congress of the United States House of Representatives. Unknown to many voters, however, is that they are not the only individuals making an influential choice in the democratic process. Throughout most of the United States, not only do constituents get to choose politicans, but also the converse - politicians have some power to choose their constituents on a decennial basis. When this power, which arises because of the need to ensure every district within a state is of equal population after each census, is used for personal or partisan gain, the process is known as "gerrymandering". Motivations for, and approaches to, gerrymandering vary, but the process nearly always results in a district that is anomalous in one or more ways; by examining these anomalies, "gerrymanders" can be readily identified.</p>
+                </div>
+                <div id="toggle-narrative-div">
+                    <!-- When this button is clicked, hide the narrative text and this button -->
+                    <button id="toggle-narrative" onclick="$('#narrative, #toggle-narrative-div').hide()" class="w3-btn w3-theme-d5">&blacktriangle; Hide introduction &blacktriangle;</button>
+                </div>
+            </header>
+            <!-- MAP -->
+            <div id="map-div"></div>
+            
+            <!-- FOOTER -->
+            <footer class="w3-bottom">
+                <!-- Legend -->
+                <div id="legend-div" class="w3-theme-d4">
+                </div>
+                <!-- Attribution -->
+                <div id="attribution-div" class="w3-theme-d4">
+                    <p id="attribution"><a href="https://d3js.org/">D3.js</a> | Partisan Voting Index, Election Results: &copy;&nbsp;<a href="https://cookpolitical.com/">The Cook Political Report</a>  | Demographics: <a href="https://www.census.gov">US Census Bureau</a> | <a href="#" onclick="$('#credits').show()">Full Credits/Methodology</a></p>
+                </div>
+            </footer>
+        </div>
+        <!-- CREDITS/CITATIONS -->
+        <div id="credits" class="w3-modal">
+            <div class="w3-modal-content">
+                <header class="w3-container w3-theme-d4">
+                    <div onclick="$('#credits').hide()" class="close" title="Close">&times;</div>
+                    <h5>Data Sources</h5>
+                </header>
+                <div class="w3-container">
+                    <h6>Core-based statistical areas (metropolitan and micropolitan statistical areas)</h6>
+                    <p class="citation">United States Census Bureau (2010). <i>2010 TIGER/Line&reg; Shapefiles: Core Based Statistical Areas - Metropolitan/Micropolitan Statistical Area</i>. Retrieved from <a target="_blank" href="https://www2.census.gov/geo/tiger/TIGER2010/CBSA/2010/tl_2010_us_cbsa10.zip">https://www2.census.gov/geo/tiger/TIGER2010/CBSA/2010/tl_2010_us_cbsa10.zip</a></p>
+                    <h6>Counties</h6>
+                    <p class="citation">United States Census Bureau (2010). <i>2010 TIGER/Line&reg; Shapefiles: Counties (and equivalent)</i>. Retrieved from <a target="_blank" href="https://www2.census.gov/geo/tiger/TIGER2010/COUNTY/2010/tl_2010_us_county10.zip">https://www2.census.gov/geo/tiger/TIGER2010/COUNTY/2010/tl_2010_us_county10.zip</a></p>
+                    <h6>Population, 1790 to 1990</h6>
+                    <p class="citation">United States Census Bureau (1996). <i>Population of  Counties, Earliest Census to 1990</i>. Retrieved from <a target="_blank" href="https://www.census.gov/population/www/censusdata/Population_PartIII.txt">https://www.census.gov/population/www/censusdata/Population_PartIII.txt</a></p>
+                    <p class="citation">United States Census Bureau (1996). <i>Population of  States and Counties of the United States: 1790 - 1990</i>. Retrieved from <a target="_blank" href="https://www.census.gov/population/www/censusdata/PopulationofStatesandCountiesoftheUnitedStates1790-1990.pdf">https://www.census.gov/population/www/censusdata/PopulationofStatesandCountiesoftheUnitedStates1790-1990.pdf</a></p>
+                    <h6>Population, 2000 and 2010</h6>
+                    <p class="citation">United States Census Bureau (2012). <i>Patterns of Metropolitan and Micropolitan Population Change: 2000 to 2010</i>. Retrieved from <a target="_blank" href="https://www.census.gov/library/publications/2012/dec/c2010sr-01.html">https://www.census.gov/library/publications/2012/dec/c2010sr-01.html</a></p>
+                    <p class="citation">United States Census Bureau (2012). <i>Patterns of Metropolitan and Micropolitan Population Change: 2000 to 2010 - Chapter 1 Data</i>. Retrieved from <a target="_blank" href="https://www2.census.gov/programs-surveys/decennial/tables/time-series/c2010sr-01/cbsa-report-chapter-1-data.xlsx">https://www2.census.gov/programs-surveys/decennial/tables/time-series/c2010sr-01/cbsa-report-chapter-1-data.xlsx</a></p>
+                </div>
+                <header class="w3-container w3-theme-d4">
+                    <h5>Methodology</h5>
+                </header>
+                <div class="w3-container">
+                    <p>Explain the methods</p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
