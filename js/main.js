@@ -1,4 +1,48 @@
-(() => {
+(function() {
+    function round(n, precision) {
+        return precision * Math.round(n / precision);
+    }
+    
+    function showTooltip(feature) {
+        let p = feature.properties;
+        let e = d3.event;
+        let mode = $('#mode-select').val();
+        if (e.type === 'mousemove') {
+            $('#tooltip')
+                .css('visibility', 'visible')
+                .css('top', e.pageY + 'px')
+                .css('left', e.pageX + 'px');
+            $('#tooltip-title').html(p.name);
+            if (['lean', 'margin_rep', 'margin_pres'].includes(mode)) {
+                if (p[mode] < 0) $('#tooltip-content').html('D+' + Math.abs(p[mode]));
+                else if (p[mode] === 0) $('#tooltip-content').html('EVEN');
+                else if (p[mode] > 0) $('#tooltip-content').html('R+' + p[mode]);
+            } else if (mode === 'wealth') {
+                $('#tooltip-content').html((p.wealth >= 0 ? '+$' : '-$') + Math.abs(p.wealth).toLocaleString());
+            } else {
+                $('#tooltip-content').html(p[mode].toLocaleString());
+            }
+        } else if (e.type === 'mouseout') {
+            $('#tooltip').css('visibility', 'hidden');
+        }
+    }
+    
+    function showPanel(feature) {
+        let p = feature.properties;
+        let mode = $('#mode-select').val();
+        $('#panel-title').html(p.name);
+        $('#panel').show();
+        
+        /*
+        let chart = d3.select('#chart')
+            .append('svg')
+            .attr('class', 'chart');
+        
+        let line = chart.selectAll('.line')
+            .data(districts);
+        */
+    }
+    
     function makeMap(error, attributes, geometry) {
         let districts = topojson.feature(geometry, geometry.objects.districts_noattr).features;
         
@@ -6,10 +50,7 @@
             .append('svg')
             .attr('preserveAspectRatio', 'xMidYMid meet')
             .attr('viewBox', '90 5 780 500')
-            .attr('class', 'map')
-            .call(d3.zoom().on('zoom', () => {
-                map.attr('transform', d3.event.transform)
-            }));
+            .attr('class', 'map');
         
         let proj = d3.geoAlbersUsa();
         let path = d3.geoPath()
@@ -27,10 +68,20 @@
                 raceDiff += Math.abs((p['h' + r + '_1'] / p.districts).toFixed(0) - p['h' + r]);
                 raceDiff += Math.abs((p['n' + r + '_1'] / p.districts).toFixed(0) - p['n' + r]);
             });
-            p.raceDiff = raceDiff;
+            p.raceDiff = Number((raceDiff / 2).toFixed(0));
+            p.wealth = p.income_state - p.income;
         }
         
+        let multiples = {
+            lean: 5,
+            raceDiff: 20000,
+            margin_rep: 10,
+            margin_pres: 10,
+            wealth: 5000,
+            complexity: 1
+        };
         let scales = {};
+        let frequency = {};
         ['lean', 'raceDiff', 'margin_rep', 'margin_pres', 'wealth', 'complexity'].forEach(i => {
             let values = [];
             districts.forEach(d => values.push(d.properties[i]));
@@ -48,22 +99,63 @@
             } else if (i === 'wealth') {
                 scales[i] = d3.scaleLinear()
                     .domain([min, 0, max])
-                    .range(['#5e3c99', '#fff', '#e66101']);
+                    .range(['#5e3c99', '#fef0d9', '#e66101']);
             }
+            frequency[i] = [];
+            let counts = {};
+            let range = [];
+            values.forEach(v => {
+                let r = round(v, multiples[i]);
+                if (r in counts) ++counts[r];
+                else counts[r] = 1;
+            });
+            $.each(counts, (value, count) => {
+                frequency[i].push({
+                    value: Number(value),
+                    count: count
+                });
+                range.push(count);
+            });
+            frequency[i].min = Math.min.apply(null, range);
+            frequency[i].max = Math.max.apply(null, range);
         });
-        
-        console.log(districts);
+        console.log(frequency);
         
         let dist = map.selectAll('.districts')
             .data(districts)
             .enter()
             .append('path')
-            .attr('class', d => 'feature ' + d.properties.name.replace(/ /g, ''))
+            .attr('class', d => 'feature ' + d.properties.OBJECTID)
             .attr('d', path)
-            .style('fill', d => scales.lean(d.properties.lean));
+            .style('fill', d => scales.lean(d.properties.lean))
+            .on('mousemove', showTooltip)
+            .on('mouseout', showTooltip)
+            .on('click', showPanel);
         
-        document.getElementById('mode-select').addEventListener('change', function() {
+        let chart = d3.select('#chart')
+            .append('svg')
+            .attr('preserveAspectRatio', 'xMidYMid meet')
+            .attr('class', 'chart');
+        
+        let scale = d3.scaleLinear()
+            .range([10, 400])
+            .domain([frequency.complexity.min, frequency.complexity.max]);
+        
+        let bars = chart.selectAll('.bars')
+            .data(frequency.complexity)
+            .enter()
+            .append('rect')
+            .sort((a, b) => a.value - b.value)
+            .attr('class', d => 'bar ' + d.value)
+            .attr('width', 400 / frequency.complexity.length - 1)
+            .attr('x', (d, i) => i * (400 / frequency.complexity.length))
+            .attr('height', d => scale(d.count))
+            .attr('y', d => 400 - scale(d.count));
+        
+        $('#mode-select').on('change', function() {
             dist.data(districts)
+                .transition()
+                .duration(1000)
                 .style('fill', d => scales[this.value](d.properties[this.value]));
         });
     }

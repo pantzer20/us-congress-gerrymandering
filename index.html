@@ -17,7 +17,8 @@
         <script src="lib/d3-queue.v3.min.js"></script>
         <script src="lib/jquery-3.3.1.slim.min.js"></script>
         <script src="js/main.js"></script>
-        <div>
+        
+        <div id="wrapper">
             <!-- HEADER -->
             <header class="w3-theme-d4">
                 <div class="w3-row">
@@ -33,8 +34,8 @@
                             <option value="margin_rep">Margin of Representative Victory</option>
                             <option value="margin_pres">Margin of Presidential Victory</option>
                             <option value="complexity">Geographic Complexity</option>
-                            <option value="raceDiff">Racial Anomaly</option>
-                            <option value="wealth">Income Anomaly</option>
+                            <option value="raceDiff">Racial/Ethnic Anomaly</option>
+                            <option value="wealth">Median Income Anomaly</option>
                         </select>
                         <label id="mode-hint" for="mode-select">Statistic</label>
                     </div>
@@ -48,20 +49,33 @@
                     <button id="toggle-narrative" onclick="$('#narrative, #toggle-narrative-div').hide()" class="w3-btn w3-theme-d5">&blacktriangle; Hide introduction &blacktriangle;</button>
                 </div>
             </header>
-            <!-- MAP -->
-            <div id="map-div"></div>
+            
+            <!-- MAP/SIDE PANEL -->
+            <div id="map-panel">
+                <!-- Side panel -->
+                <div id="panel" class="w3-theme-d3">
+                    <p id="panel-title"></p>
+                    <div id="chart"></div>
+                </div>
+                <!-- Map -->
+                <div id="map-div"></div>
+            </div>
             
             <!-- FOOTER -->
-            <footer class="w3-bottom">
-                <!-- Legend -->
-                <div id="legend-div" class="w3-theme-d4">
-                </div>
+            <footer>
                 <!-- Attribution -->
                 <div id="attribution-div" class="w3-theme-d4">
                     <p id="attribution"><a href="https://d3js.org/">D3.js</a> | Partisan Voting Index, Election Results: &copy;&nbsp;<a href="https://cookpolitical.com/">The Cook Political Report</a>  | Demographics: <a href="https://www.census.gov">US Census Bureau</a> | <a href="#" onclick="$('#credits').show()">Full Credits/Methodology</a></p>
                 </div>
             </footer>
         </div>
+        
+        <!-- TOOLTIP -->
+        <div id="tooltip" class="w3-black w3-round">
+            <p id="tooltip-title"></p>
+            <p id="tooltip-content"></p>
+        </div>
+        
         <!-- CREDITS/CITATIONS -->
         <div id="credits" class="w3-modal">
             <div class="w3-modal-content">

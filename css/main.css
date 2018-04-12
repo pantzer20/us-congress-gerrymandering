@@ -1,41 +1,64 @@
 html, body {
+    padding: 0;
     margin: 0;
     height: 100%;
+    width: 100%;
+    font-family: 'Mukta Mahee', sans-serif;
 }
 .feature {
     fill: red;
     stroke: black;
     stroke-width: 0.14px;
+    cursor: pointer;
+}
+.feature:hover {
+    stroke-width: 1px;
+}
+#tooltip {
+    visibility: hidden;
+    position: absolute;
+    margin: 10px 0 0 10px;
+    pointer-events: none;
+    text-align: center;
+}
+#tooltip-title {
+    margin: 0 8px;
+    font-variant: small-caps;
+}
+#tooltip-content {
+    margin: 0 8px;
+    font-size: 1.3em;
+}
+#map-panel {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
 }
 #panel {
-    height: 100px;
-    background-color: black;
+    min-width: 200px;
+    /*display: none;*/
+    padding: 8px;
+    text-align: center;
 }
-body > div {
+#chart {
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+}
+#wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
-.map {
+.map, .chart {
     height: 100%;
 }
-#map-div {
+#map-div, #chart {
     display: flex;
     justify-content: center;
     height: 100%;
-    overflow: hidden;
-}
-
-/* EXTRACT */
-
-html, body {
-    height: 100%;
     width: 100%;
-    font-family: 'Mukta Mahee', sans-serif;
-}
-body {
-    padding: 0;
-    margin: 0;
+    overflow: hidden;
 }
 .title {
     margin: 4px 8px 2px 0px;
@@ -47,7 +70,6 @@ body {
 }
 header, footer {
     width: 100%;
-    z-index: 1000;
 }
 header {
     padding: 8px 16px 0 16px;
@@ -62,19 +84,14 @@ select {
 .w3-hide-small p {
     text-align: left;
 }
-#mode-hint, #year-hint {
-    font-variant-caps: small-caps;
-}
 #mode-hint {
+    font-variant-caps: small-caps;
     text-align: center;
 }
 .w3-modal {
     z-index: 1000;
 }
 @media (max-width: 600px) {
-    #mode-hint {
-        float: left;
-    }
     .w3-row > div {
         margin-bottom: 6px;
     }
@@ -83,12 +100,6 @@ select {
     }
     .title {
         text-align: center;
-    }
-    #legend {
-        justify-content: center !important;
-    }
-    #legend-div {
-        border-top-right-radius: 0 !important;
     }
     footer {
         display: block !important;
@@ -105,9 +116,6 @@ select {
     }
     .w3-row > div, #narrative {
         margin: 0 1em;
-    }
-    #year-select-labels {
-        margin: 4px 0;
     }
 }
 .w3-row {
@@ -135,79 +143,15 @@ label {
 #attribution-div {
     flex: 0 1 100%;
     padding: 4px 8px;
-    pointer-events: all;
 }
 #attribution {
     text-align: center;
     font-size: 80%;
     margin: 0;
 }
-#legend-div {
-    border-top-right-radius: 8px;
-}
-#legend-div > p {
-    padding-top: 4px;
-    margin: 0;
-    font-variant: small-caps;
-    text-align: center;
-}
-#legend {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    padding: 8px 12px;
-}
-#legend p {
-    margin: 0;
-    text-align: center;
-}
-.top-circle, .bottom-circle, .circle {
-    position: relative;
-    width: 100%;
-    padding-top: 50%;
-    height: 100%;
-}
-.circle {
-    padding-top: 100% !important;
-    background: #4af;
-    border-radius: 70px;
-}
-.top-circle {
-    background: #4af;
-    border-top-left-radius: 50px;
-    border-top-right-radius: 50px;
-}
-.bottom-circle {
-    background: #f64;
-    border-bottom-left-radius: 50px;
-    border-bottom-right-radius: 50px;
-}
-.circle-sign {
-    line-height: 0;
-    position: absolute;
-    bottom: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-.circle-sign.small {
-    font-size: 10px;
-}
-.circle-sign.large {
-    font-size: 24px;
-}
-.absolute {
-    display: none;
-}
-footer {
-    z-index: 1000;
-    display: flex;
-    align-items: flex-end;
-    pointer-events: none;
-}
 #narrative {
     line-height: 1.1;
     font-size: 14px;
-    cursor: pointer;
 }
 #toggle-narrative-div {
     text-align: center;
