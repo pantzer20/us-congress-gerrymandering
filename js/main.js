@@ -1,6 +1,10 @@
 (function() {
-    function round(n, precision) {
-        return precision * Math.round(n / precision);
+	let frequency;
+	let districts;
+	let chart;
+	
+    function round(n, multiple) {
+        return multiple * Math.round(n / multiple);
     }
     
     function showTooltip(feature) {
@@ -32,19 +36,34 @@
         let mode = $('#mode-select').val();
         $('#panel-title').html(p.name);
         $('#panel').show();
-        
-        /*
-        let chart = d3.select('#chart')
-            .append('svg')
-            .attr('class', 'chart');
-        
-        let line = chart.selectAll('.line')
-            .data(districts);
-        */
+		
+		$('#chart > svg').remove();
+		//if ($('#chart > svg').length < 1) {
+			let chart = d3.select('#chart')
+				.append('svg')
+				.attr('preserveAspectRatio', 'xMidYMid meet')
+				.attr('viewBox', '0 0 400 400')
+				.attr('class', 'chart');
+			
+			let scale = d3.scaleLinear()
+				.range([0, 400])
+				.domain([0, frequency[mode].max]);
+			
+			let bars = chart.selectAll('.bars')
+				.data(frequency[mode])
+				.enter()
+				.append('rect')
+				.sort((a, b) => a.value - b.value)
+				.attr('class', d => 'bar ' + d.value)
+				.attr('width', 400 / frequency[mode].length - 3)
+				.attr('x', (d, i) => i * (400 / frequency[mode].length))
+				.attr('height', d => scale(d.count))
+				.attr('y', d => 400 - scale(d.count));
+		//}
     }
     
     function makeMap(error, attributes, geometry) {
-        let districts = topojson.feature(geometry, geometry.objects.districts_noattr).features;
+        districts = topojson.feature(geometry, geometry.objects.districts_noattr).features;
         
         let map = d3.select('#map-div')
             .append('svg')
@@ -81,7 +100,7 @@
             complexity: 1
         };
         let scales = {};
-        let frequency = {};
+        frequency = {};
         ['lean', 'raceDiff', 'margin_rep', 'margin_pres', 'wealth', 'complexity'].forEach(i => {
             let values = [];
             districts.forEach(d => values.push(d.properties[i]));
@@ -131,26 +150,6 @@
             .on('mousemove', showTooltip)
             .on('mouseout', showTooltip)
             .on('click', showPanel);
-        
-        let chart = d3.select('#chart')
-            .append('svg')
-            .attr('preserveAspectRatio', 'xMidYMid meet')
-            .attr('class', 'chart');
-        
-        let scale = d3.scaleLinear()
-            .range([10, 400])
-            .domain([frequency.complexity.min, frequency.complexity.max]);
-        
-        let bars = chart.selectAll('.bars')
-            .data(frequency.complexity)
-            .enter()
-            .append('rect')
-            .sort((a, b) => a.value - b.value)
-            .attr('class', d => 'bar ' + d.value)
-            .attr('width', 400 / frequency.complexity.length - 1)
-            .attr('x', (d, i) => i * (400 / frequency.complexity.length))
-            .attr('height', d => scale(d.count))
-            .attr('y', d => 400 - scale(d.count));
         
         $('#mode-select').on('change', function() {
             dist.data(districts)
