@@ -6,6 +6,22 @@
     function round(n, multiple) {
         return multiple * Math.round(n / multiple);
     }
+	
+	function intToMargin(n) {
+		if (n < 0) return 'D+' + Math.abs(n);
+		else if (n === 0) return 'EVEN';
+		else if (n > 0) return 'R+' + n;
+	}
+	
+	function stylizeFigure(f, mode) {
+		 if (['lean', 'margin_rep', 'margin_pres'].includes(mode)) {
+			return intToMargin(f);
+		} else if (mode === 'wealth') {
+			return (f >= 0 ? '+$' : '-$') + Math.abs(f).toLocaleString();
+		} else {
+			return f.toLocaleString();
+		}
+	}
     
     function showTooltip(feature) {
         let p = feature.properties;
@@ -17,15 +33,7 @@
                 .css('top', e.pageY + 'px')
                 .css('left', e.pageX + 'px');
             $('#tooltip-title').html(p.name);
-            if (['lean', 'margin_rep', 'margin_pres'].includes(mode)) {
-                if (p[mode] < 0) $('#tooltip-content').html('D+' + Math.abs(p[mode]));
-                else if (p[mode] === 0) $('#tooltip-content').html('EVEN');
-                else if (p[mode] > 0) $('#tooltip-content').html('R+' + p[mode]);
-            } else if (mode === 'wealth') {
-                $('#tooltip-content').html((p.wealth >= 0 ? '+$' : '-$') + Math.abs(p.wealth).toLocaleString());
-            } else {
-                $('#tooltip-content').html(p[mode].toLocaleString());
-            }
+			$('#tooltip-content').html(stylizeFigure(p[mode], mode));
         } else if (e.type === 'mouseout') {
             $('#tooltip').css('visibility', 'hidden');
         }
@@ -36,6 +44,9 @@
 			//if there's a feature specified
 		}
 		let mode = $('#mode-select').val();
+		$('#x-min').html(stylizeFigure(frequency[mode].min, mode));
+		$('#x-max').html(stylizeFigure(frequency[mode].max, mode));
+		$('#y-max').html(frequency[mode].maxCount);
 		$('#chart > svg').remove();
 		let chart = d3.select('#chart')
 			.append('svg')
@@ -45,48 +56,19 @@
 		
 		let scale = d3.scaleLinear()
 			.range([0, 400])
-			.domain([0, frequency[mode].max]);
+			.domain([0, frequency[mode].maxCount]);
 		
 		let bars = chart.selectAll('.bars')
-			.data(frequency[mode])
+			.data(frequency[mode].values)
 			.enter()
 			.append('rect')
 			.sort((a, b) => a.value - b.value)
 			.attr('class', d => 'bar ' + d.value)
-			.attr('width', 400 / frequency[mode].length - 3)
-			.attr('x', (d, i) => i * (400 / frequency[mode].length))
+			.attr('width', 400 / frequency[mode].values.length - 3)
+			.attr('x', (d, i) => i * (400 / frequency[mode].values.length))
 			.attr('height', d => scale(d.count))
 			.attr('y', d => 400 - scale(d.count));
 	}
-	
-    function showPanel(feature) {
-        let p = feature.properties;
-        let mode = $('#mode-select').val();
-        $('#panel-title').html(p.name);
-        $('#panel').show();
-		
-		$('#chart > svg').remove();
-		let chart = d3.select('#chart')
-			.append('svg')
-			.attr('preserveAspectRatio', 'xMidYMid meet')
-			.attr('viewBox', '0 0 400 400')
-			.attr('class', 'chart');
-		
-		let scale = d3.scaleLinear()
-			.range([0, 400])
-			.domain([0, frequency[mode].max]);
-		
-		let bars = chart.selectAll('.bars')
-			.data(frequency[mode])
-			.enter()
-			.append('rect')
-			.sort((a, b) => a.value - b.value)
-			.attr('class', d => 'bar ' + d.value)
-			.attr('width', 400 / frequency[mode].length - 3)
-			.attr('x', (d, i) => i * (400 / frequency[mode].length))
-			.attr('height', d => scale(d.count))
-			.attr('y', d => 400 - scale(d.count));
-    }
     
     function makeMap(error, attributes, geometry) {
         districts = topojson.feature(geometry, geometry.objects.districts_noattr).features;
@@ -146,22 +128,36 @@
                     .domain([min, 0, max])
                     .range(['#5e3c99', '#fef0d9', '#e66101']);
             }
-            frequency[i] = [];
+			frequency[i] = {};
+            frequency[i].values = [];
             let counts = {};
-            let range = [];
+			let valueRange = [];
+            let countRange = [];
             values.forEach(v => {
                 let r = round(v, multiples[i]);
                 if (r in counts) ++counts[r];
                 else counts[r] = 1;
             });
             $.each(counts, (value, count) => {
-                frequency[i].push({
+                frequency[i].values.push({
                     value: Number(value),
                     count: count
                 });
-                range.push(count);
+                valueRange.push(Number(value));
+                countRange.push(count);
             });
-            frequency[i].max = Math.max.apply(null, range);
+            frequency[i].maxCount = Math.max.apply(null, countRange);
+            frequency[i].min = Math.min.apply(null, valueRange);
+            frequency[i].max = Math.max.apply(null, valueRange);
+			console.log(valueRange);
+			for (v = frequency[i].min; v < frequency[i].max; v += multiples[i]) {
+				if (!valueRange.includes(v)) {
+					frequency[i].values.push({
+						value: Number(v),
+						count: 0
+					});
+				}
+			}
         });
         console.log(frequency);
         
@@ -174,7 +170,7 @@
             .style('fill', d => scales.lean(d.properties.lean))
             .on('mousemove', showTooltip)
             .on('mouseout', showTooltip)
-            .on('click', showPanel);
+            .on('click', updateChart);
         
         $('#mode-select').on('change', function() {
 			updateChart();
