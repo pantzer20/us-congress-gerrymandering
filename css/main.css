@@ -5,6 +5,9 @@ html, body {
     width: 100%;
     font-family: 'Mukta Mahee', sans-serif;
 }
+body {
+	display: none;
+}
 .feature {
     fill: red;
     stroke: black;
@@ -35,19 +38,23 @@ html, body {
     height: 100%;
 }
 #panel {
-    min-width: 333px;
-    /*display: none;*/
+    min-width: 330px;
     padding: 8px;
     text-align: center;
+	overflow-y: auto;
 }
 #panel-title {
 	font-variant: small-caps;
 	font-size: 120%;
+	margin: 4px;
 }
 #chart {
     height: 100px;
     display: flex;
     flex-direction: column;
+}
+.bar {
+	fill: #a2cde2;
 }
 .chart-figure {
 	font-size: 80%;
@@ -117,6 +124,9 @@ select {
     #narrative, #toggle-narrative-div {
         display: none;
     }
+	#map-panel {
+		flex-direction: column-reverse;
+	}
 }
 @media (min-width: 601px) {
     .w3-row {

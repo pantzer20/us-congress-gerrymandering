@@ -1,7 +1,25 @@
 (function() {
 	let frequency;
 	let districts;
-	let chart;
+	//let chart;
+	
+	let multiples = {
+		lean: 5,
+		raceDiff: 20000,
+		margin_rep: 10,
+		margin_pres: 10,
+		wealth: 5000,
+		complexity: 1
+	};
+	
+	let chartTitle = {
+		lean: 'Cook PVI',
+		raceDiff: 'Deviation from State Mean',
+		margin_rep: 'Margin of Victory (%)',
+		margin_pres: 'Margin of Victory (%)',
+		wealth: 'Deviation from State Mean',
+		complexity: 'Complexity'
+	};
 	
     function round(n, multiple) {
         return multiple * Math.round(n / multiple);
@@ -23,30 +41,12 @@
 		}
 	}
     
-    function showTooltip(feature) {
-        let p = feature.properties;
-        let e = d3.event;
-        let mode = $('#mode-select').val();
-        if (e.type === 'mousemove') {
-            $('#tooltip')
-                .css('visibility', 'visible')
-                .css('top', e.pageY + 'px')
-                .css('left', e.pageX + 'px');
-            $('#tooltip-title').html(p.name);
-			$('#tooltip-content').html(stylizeFigure(p[mode], mode));
-        } else if (e.type === 'mouseout') {
-            $('#tooltip').css('visibility', 'hidden');
-        }
-    }
-    
-	function updateChart(feature = null) {
-		if (!!feature) {
-			//if there's a feature specified
-		}
+	function newChart() {
 		let mode = $('#mode-select').val();
 		$('#x-min').html(stylizeFigure(frequency[mode].min, mode));
 		$('#x-max').html(stylizeFigure(frequency[mode].max, mode));
 		$('#y-max').html(frequency[mode].maxCount);
+		$('#x-title').html(chartTitle[mode]);
 		$('#chart > svg').remove();
 		let chart = d3.select('#chart')
 			.append('svg')
@@ -69,6 +69,37 @@
 			.attr('height', d => scale(d.count))
 			.attr('y', d => 400 - scale(d.count));
 	}
+	
+	function updatePanel(p, e, mode) {
+		let rounded = round(p[mode], multiples[mode]);
+		if (e === 'mousemove') {
+			$('#panel-title').html(p.name);
+			$(`.bar.${rounded}`).css('fill', '#2b6a88');
+		} else if (e === 'mouseout') {
+			$('#panel-title').html(null);
+			$(`.bar.${rounded}`).css('fill', '#a2cde2');
+		} else if (e === 'click') {
+			$('.bar').css('fill', '#a2cde2');
+			$(`.bar.${rounded}`).css('fill', '#2b6a88');
+		}
+	}
+	
+	function showTooltip(feature) {
+		let p = feature.properties;
+		let e = d3.event;
+		let mode = $('#mode-select').val();
+		if (e.type === 'mousemove') {
+			$('#tooltip')
+				.css('visibility', 'visible')
+				.css('top', e.pageY + 'px')
+				.css('left', e.pageX + 'px');
+			$('#tooltip-title').html(p.name);
+			$('#tooltip-content').html(stylizeFigure(p[mode], mode));
+		} else if (e.type === 'mouseout') {
+			$('#tooltip').css('visibility', 'hidden');
+		}
+		updatePanel(p, e.type, mode);
+    }
     
     function makeMap(error, attributes, geometry) {
         districts = topojson.feature(geometry, geometry.objects.districts_noattr).features;
@@ -99,14 +130,6 @@
             p.wealth = p.income_state - p.income;
         }
         
-        let multiples = {
-            lean: 5,
-            raceDiff: 20000,
-            margin_rep: 10,
-            margin_pres: 10,
-            wealth: 5000,
-            complexity: 1
-        };
         let scales = {};
         frequency = {};
         ['lean', 'raceDiff', 'margin_rep', 'margin_pres', 'wealth', 'complexity'].forEach(i => {
@@ -149,7 +172,6 @@
             frequency[i].maxCount = Math.max.apply(null, countRange);
             frequency[i].min = Math.min.apply(null, valueRange);
             frequency[i].max = Math.max.apply(null, valueRange);
-			console.log(valueRange);
 			for (v = frequency[i].min; v < frequency[i].max; v += multiples[i]) {
 				if (!valueRange.includes(v)) {
 					frequency[i].values.push({
@@ -159,7 +181,6 @@
 				}
 			}
         });
-        console.log(frequency);
         
         let dist = map.selectAll('.districts')
             .data(districts)
@@ -170,15 +191,17 @@
             .style('fill', d => scales.lean(d.properties.lean))
             .on('mousemove', showTooltip)
             .on('mouseout', showTooltip)
-            .on('click', updateChart);
+            .on('click', showTooltip);
         
         $('#mode-select').on('change', function() {
-			updateChart();
+			newChart();
             dist.data(districts)
                 .transition()
                 .duration(1000)
                 .style('fill', d => scales[this.value](d.properties[this.value]));
         });
+		newChart();
+		$('body').show();
     }
     d3.queue()
         .defer(d3.csv, 'data/attributes.csv')
