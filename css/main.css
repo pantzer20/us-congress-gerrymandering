@@ -49,6 +49,9 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+.chart-figure {
+	font-size: 80%;
+}
 #wrapper {
     display: flex;
     flex-direction: column;

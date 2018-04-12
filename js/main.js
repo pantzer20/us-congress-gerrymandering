@@ -31,6 +31,34 @@
         }
     }
     
+	function updateChart(feature = null) {
+		if (!!feature) {
+			//if there's a feature specified
+		}
+		let mode = $('#mode-select').val();
+		$('#chart > svg').remove();
+		let chart = d3.select('#chart')
+			.append('svg')
+			.attr('preserveAspectRatio', 'xMidYMid meet')
+			.attr('viewBox', '0 0 400 400')
+			.attr('class', 'chart');
+		
+		let scale = d3.scaleLinear()
+			.range([0, 400])
+			.domain([0, frequency[mode].max]);
+		
+		let bars = chart.selectAll('.bars')
+			.data(frequency[mode])
+			.enter()
+			.append('rect')
+			.sort((a, b) => a.value - b.value)
+			.attr('class', d => 'bar ' + d.value)
+			.attr('width', 400 / frequency[mode].length - 3)
+			.attr('x', (d, i) => i * (400 / frequency[mode].length))
+			.attr('height', d => scale(d.count))
+			.attr('y', d => 400 - scale(d.count));
+	}
+	
     function showPanel(feature) {
         let p = feature.properties;
         let mode = $('#mode-select').val();
@@ -38,28 +66,26 @@
         $('#panel').show();
 		
 		$('#chart > svg').remove();
-		//if ($('#chart > svg').length < 1) {
-			let chart = d3.select('#chart')
-				.append('svg')
-				.attr('preserveAspectRatio', 'xMidYMid meet')
-				.attr('viewBox', '0 0 400 400')
-				.attr('class', 'chart');
-			
-			let scale = d3.scaleLinear()
-				.range([0, 400])
-				.domain([0, frequency[mode].max]);
-			
-			let bars = chart.selectAll('.bars')
-				.data(frequency[mode])
-				.enter()
-				.append('rect')
-				.sort((a, b) => a.value - b.value)
-				.attr('class', d => 'bar ' + d.value)
-				.attr('width', 400 / frequency[mode].length - 3)
-				.attr('x', (d, i) => i * (400 / frequency[mode].length))
-				.attr('height', d => scale(d.count))
-				.attr('y', d => 400 - scale(d.count));
-		//}
+		let chart = d3.select('#chart')
+			.append('svg')
+			.attr('preserveAspectRatio', 'xMidYMid meet')
+			.attr('viewBox', '0 0 400 400')
+			.attr('class', 'chart');
+		
+		let scale = d3.scaleLinear()
+			.range([0, 400])
+			.domain([0, frequency[mode].max]);
+		
+		let bars = chart.selectAll('.bars')
+			.data(frequency[mode])
+			.enter()
+			.append('rect')
+			.sort((a, b) => a.value - b.value)
+			.attr('class', d => 'bar ' + d.value)
+			.attr('width', 400 / frequency[mode].length - 3)
+			.attr('x', (d, i) => i * (400 / frequency[mode].length))
+			.attr('height', d => scale(d.count))
+			.attr('y', d => 400 - scale(d.count));
     }
     
     function makeMap(error, attributes, geometry) {
@@ -135,7 +161,6 @@
                 });
                 range.push(count);
             });
-            frequency[i].min = Math.min.apply(null, range);
             frequency[i].max = Math.max.apply(null, range);
         });
         console.log(frequency);
@@ -152,6 +177,7 @@
             .on('click', showPanel);
         
         $('#mode-select').on('change', function() {
+			updateChart();
             dist.data(districts)
                 .transition()
                 .duration(1000)
