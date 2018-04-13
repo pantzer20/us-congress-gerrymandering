@@ -242,48 +242,77 @@
         
         /* For each theme of data: */
         Object.keys(themes).forEach(i => {
-            
+            /* Create an array to store all of the attribute values for this theme */
             let values = [];
+            /* For each district feature, add the attribute value to the array */
             districts.forEach(d => values.push(d.properties[i]));
+            /* Get the minimum value in the array */
             let min = Math.min.apply(null, values);
+            /* Get the maximum value in the array */
             let max = Math.max.apply(null, values);
-            let abs = Math.abs(Math.max(min, max));
+            /* Get the highest absolute value of the minimum or maximum */
+            let abs = Math.max(Math.abs(min), Math.abs(max));
+            /* If the theme is Cook PVI, representative victory margin, or presidential victory margin: */
             if (['lean', 'margin_rep', 'margin_pres'].includes(i)) {
+                /* Use a linear scale ranging from the negated highest absolute  value (blue) to the highest absolute value (red) */
                 scales[i] = d3.scaleLinear()
                     .domain([-(abs), 0, abs])
                     .range(['#2c7bb6', '#fff', '#d7191c']);
+            /* If the theme is racial disparity or geographic complexity: */
             } else if (['raceDiff', 'complexity'].includes(i)) {
+                /* Use a quantile scale with five classes (white to yellow to brown) */
                 scales[i] = d3.scaleQuantile()
                     .domain(values)
                     .range(['#fef0d9','#fdcc8a','#fc8d59','#e34a33','#b30000']);
+            /* If the theme is median income: */
             } else if (i === 'wealth') {
+                /* Use a linear scale using diverging colors for negative (purple) and positive (orange) values */
                 scales[i] = d3.scaleLinear()
                     .domain([min, 0, max])
                     .range(['#5e3c99', '#fef0d9', '#e66101']);
             }
+            /* Create an object to store this theme's statistics */
 			frequency[i] = {};
+            /* Create an array to store the frequency of feature values after aggregation into classes */
             frequency[i].values = [];
+            /* Create an object to store the frequency of feature values after aggregation into classes; this will be dumped into the array above for D3's use */
             let counts = {};
+            /* Create an array to store all possible rounded (aggregated) attribute values; this is used to calculate statistics that control the chart's rendering */
 			let valueRange = [];
+            /* Create an array to store counts (frequency) for the above values; this is used to calculate statistics that control the chart's rendering */
             let countRange = [];
+            /* For each attribute value: */
             values.forEach(v => {
+                /* Round the value using the theme-specific multiple; this is done to aggregate values into classes in the chart */
                 let r = round(v, multiples[i]);
+                /* If the rounded value already exists in the frequency object, increment the count for said value */
                 if (r in counts) ++counts[r];
+                /* If the rounded value does not yet exist in the frequency object, add it */
                 else counts[r] = 1;
             });
+            /* For each element in the frequency table: */
             $.each(counts, (value, count) => {
+                /* Migrate this element into the frequency array for D3's use */
                 frequency[i].values.push({
                     value: Number(value),
                     count: count
                 });
+                /* Add the value into the array of all values */
                 valueRange.push(Number(value));
+                /* Add the frequency into the array of all frequencies (counts) */
                 countRange.push(count);
             });
+            /* Get the maximum frequency (i.e. the count of the class with the most features); this is the top end of the Y-axis */
             frequency[i].maxCount = Math.max.apply(null, countRange);
+            /* Get the minimum feature value; this is the low (left) end of the chart's X-axis */
             frequency[i].min = Math.min.apply(null, valueRange);
+            /* Get the maximum feature value; this is the high (right) end of the chart's X-axis */
             frequency[i].max = Math.max.apply(null, valueRange);
+            /* For each possible class value - those between the minimum and maximum values of the existing feature, incrementing by the theme-specific multiple: */
 			for (v = frequency[i].min; v < frequency[i].max; v += multiples[i]) {
+                /* If this value is not already in the array of values: */
 				if (!valueRange.includes(v)) {
+                    /* Add this value to the frequency array with a count of zero; this will create a gap in the chart */
 					frequency[i].values.push({
 						value: Number(v),
 						count: 0
