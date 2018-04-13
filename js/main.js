@@ -70,6 +70,8 @@
 		$('#y-max').html(frequency[mode].maxCount);
         /* Set the chart's X-axis text */
 		$('#x-title').html(themes[mode]);
+        /* Set the chart's title */
+        $('#chart-title').html('Distribution of ' + themes[mode]);
         /* Delete all bars from the chart if any exist */
 		$('#chart > svg').remove();
         /* Select the chart element, then: */
