@@ -95,7 +95,7 @@
 			.data(frequency[mode].values)
             /* Recurse through the object */
 			.enter()
-            /* Append an SVG rectangle object for each bar */
+            /* Append an SVG rectangle element for each bar */
 			.append('rect')
             /* Sort the bars by value */
 			.sort((a, b) => a.value - b.value)
@@ -321,26 +321,41 @@
 			}
         });
         
+        /* Make a selection to begin inserting district polygons */
         let dist = map.selectAll('.districts')
+            /* Set the data source as the districts object */
             .data(districts)
+            /* Recurse through the object */
             .enter()
+            /* Append an SVG path element for each bar */
             .append('path')
+            /* Set class names for the polygons; all are in "feature", and each polygon is also added to a class based on its OBJECTID */
             .attr('class', d => 'feature ' + d.properties.OBJECTID)
+            /* Set the polygon's geometry */
             .attr('d', path)
+            /* Set the polygon's fill color using the scale of the initial theme (Cook PVI) */
             .style('fill', d => scales.lean(d.properties.lean))
+            /* When the cursor moves over or out of the polygon, or the polygon is clicked on, call the showTooltip function; the feature's data and the cursor event are implicitly passed to the function */
             .on('mousemove', showTooltip)
             .on('mouseout', showTooltip)
             .on('click', showTooltip);
         
+        /* When the display mode is changed by the user: */
         $('#mode-select').on('change', function() {
+            /* (Re)draw the chart based on the new theme's data */
 			newChart();
+            /* If a feature was previously clicked on, call the updatePanel function to outline the appropriate bar on the chart */
             if (!!currentFeature) updatePanel(currentFeature, 'mouseout', $(this).val());
+            /* Change the symbology of the map, using a one-second transition */
             dist.data(districts)
                 .transition()
                 .duration(1000)
+                /* The features are restyled using the new theme's scale */
                 .style('fill', d => scales[this.value](d.properties[this.value]));
         });
+        /* Initialize the chart */
 		newChart();
+        /* Show the page after all computation is complete */
 		$('body').show();
     }
     
