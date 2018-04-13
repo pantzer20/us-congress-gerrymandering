@@ -12,12 +12,14 @@
         <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
+        <!-- EXTERNAL SCRIPTS -->
         <script src="lib/topojson-client.js"></script>
         <script src="lib/d3.v4.min.js"></script>
         <script src="lib/d3-queue.v3.min.js"></script>
         <script src="lib/jquery-3.3.1.slim.min.js"></script>
         <script src="js/main.js"></script>
         
+        <!-- Whole-page container to support flexbox arrangement -->
         <div id="wrapper">
             <!-- HEADER -->
             <header class="w3-theme-d4">
@@ -50,29 +52,39 @@
                 </div>
             </header>
             
-            <!-- MAP/SIDE PANEL -->
+            <!-- Map and panel container -->
             <div id="map-panel">
-                <!-- Side panel -->
+                <!-- SIDE PANEL -->
                 <div id="panel" class="w3-theme-d3">
-                    <div>
-                        <p id="panel-title"></p>
-                    </div>
+                    <!-- District name placeholder -->
+                    <p id="panel-title"></p>
                     <p>Distribution of Values</p>
+                    <!-- CHART -->
 					<div style="display:flex; max-height:96%">
+                        <!-- Y-axis labels -->
 						<div style="display:flex; flex-direction:column; justify-content:space-between; margin:0 4px 20px 0">
+                            <!-- Y maximum figure -->
 							<div id="y-max" class="chart-figure"></div>
+                            <!-- Y title -->
 							<div id="y-title" class="chart-axis" style="writing-mode:vertical-lr">Number of Districts</div>
+                            <!-- Y minimum figure -->
 							<div id="y-min" class="chart-figure">0</div>
 						</div>
 						<div style="display:flex; flex-direction:column; flex:1; max-width:88%">
+                            <!-- Chart element -->
 							<div id="chart"></div>
+                            <!-- X-axis labels -->
 							<div style="display:flex; flex-direction:row; justify-content:space-between; margin:4px">
+                                <!-- X minimum figure -->
 								<div id="x-min" class="chart-figure"></div>
+                                <!-- X title -->
 								<div id="x-title" class="chart-axis">Value</div>
+                                <!-- X maximum figure -->
 								<div id="x-max" class="chart-figure"></div>
 							</div>
 						</div>
 					</div>
+                    <!-- District statistics -->
                     <div id="stats">
                         <div title="For the last two presidential elections, the average difference between this district's vote and that of the country at large. Values beginning with &quot;R&quot; indicate a Republican bias, while &quot;D&quot; indicates a Democratic bias; the following numeric value indicates the strength of the bias.">
                             <p>Cook Partisan Voting Index</p>
@@ -101,7 +113,7 @@
                     </div>
                 </div>
 				
-                <!-- Map -->
+                <!-- MAP -->
                 <div id="map-div"></div>
             </div>
             
@@ -127,6 +139,7 @@
                     <div onclick="$('#credits').hide()" class="close" title="Close">&times;</div>
                     <h5>Data Sources</h5>
                 </header>
+                <!-- Citation list -->
                 <div class="w3-container">
                     <h6>Cook Partisan Voting Index and Election Results</h6>
                     <p class="citation">The Cook Political Report (2018). <i>PVI Map and District List</i>. Retrieved from <a target="_blank" href="http://cookpolitical.com/index.php/pvi-map-and-district-list">http://cookpolitical.com/index.php/pvi-map-and-district-list</a></p>
