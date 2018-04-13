@@ -65,6 +65,7 @@
 			.append('rect')
 			.sort((a, b) => a.value - b.value)
 			.attr('class', d => 'bar ' + d.value)
+            .style('fill', d => scales[mode](d.value))
 			.attr('width', 400 / frequency[mode].values.length - 3)
 			.attr('x', (d, i) => i * (400 / frequency[mode].values.length))
 			.attr('height', d => scale(d.count))
@@ -76,20 +77,20 @@
         $('.feature').css('stroke-width', '0.14px');
 		if (e === 'mousemove') {
 			$('#panel-title').html(p.name);
-            $('.bar').css('fill', '#a2cde2');
-			$(`.bar.${rounded}`).css('fill', '#2b6a88');
+            $('.bar').css('stroke', 'none');
+			$(`.bar.${rounded}`).css('stroke', 'black');
 		} else if (e === 'mouseout') {
             if (!!currentFeature) {
                 updatePanel(currentFeature, 'mousemove', mode);
             } else {
                 $('#panel-title').html(null);
-                $('.bar').css('fill', '#a2cde2');
+                $('.bar').css('stroke', 'none');
                 $('#stats').hide();
             }
 		} else if (e === 'click') {
             currentFeature = p;
-			$('.bar').css('fill', '#a2cde2');
-			$(`.bar.${rounded}`).css('fill', '#2b6a88');
+            $('.bar').css('stroke', 'none');
+			$(`.bar.${rounded}`).css('stroke', 'black');
 		}
         if (e === 'mousemove' || e === 'click') {
             Object.keys(themes).forEach(i => {
