@@ -1,7 +1,6 @@
 (function() {
-	let frequency;
+	let frequency = {};
 	let districts;
-	//let chart;
 	
 	let multiples = {
 		lean: 5,
@@ -12,12 +11,12 @@
 		complexity: 1
 	};
 	
-	let chartTitle = {
+	let themes = {
 		lean: 'Cook PVI',
-		raceDiff: 'Deviation from State Mean',
+		raceDiff: 'Racial Anomaly (Persons)',
 		margin_rep: 'Margin of Victory (%)',
 		margin_pres: 'Margin of Victory (%)',
-		wealth: 'Deviation from State Mean',
+		wealth: 'Income Anomaly ($)',
 		complexity: 'Complexity'
 	};
 	
@@ -46,7 +45,7 @@
 		$('#x-min').html(stylizeFigure(frequency[mode].min, mode));
 		$('#x-max').html(stylizeFigure(frequency[mode].max, mode));
 		$('#y-max').html(frequency[mode].maxCount);
-		$('#x-title').html(chartTitle[mode]);
+		$('#x-title').html(themes[mode]);
 		$('#chart > svg').remove();
 		let chart = d3.select('#chart')
 			.append('svg')
@@ -82,6 +81,11 @@
 			$('.bar').css('fill', '#a2cde2');
 			$(`.bar.${rounded}`).css('fill', '#2b6a88');
 		}
+        if (e === 'mousemove' || e === 'click') {
+            Object.keys(themes).forEach(i => {
+                $(`#${i}-stat`).html(stylizeFigure(p[i], i));
+            });
+        }
 	}
 	
 	function showTooltip(feature) {
@@ -127,12 +131,11 @@
                 raceDiff += Math.abs((p['n' + r + '_1'] / p.districts).toFixed(0) - p['n' + r]);
             });
             p.raceDiff = Number((raceDiff / 2).toFixed(0));
-            p.wealth = p.income_state - p.income;
+            p.wealth = p.income - p.income_state;
         }
         
         let scales = {};
-        frequency = {};
-        ['lean', 'raceDiff', 'margin_rep', 'margin_pres', 'wealth', 'complexity'].forEach(i => {
+        Object.keys(themes).forEach(i => {
             let values = [];
             districts.forEach(d => values.push(d.properties[i]));
             let min = Math.min.apply(null, values);
