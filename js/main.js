@@ -1,6 +1,8 @@
 (function() {
 	let frequency = {};
+    let scales = {};
 	let districts;
+    let currentFeature;
 	
 	let multiples = {
 		lean: 5,
@@ -71,13 +73,21 @@
 	
 	function updatePanel(p, e, mode) {
 		let rounded = round(p[mode], multiples[mode]);
+        $('.feature').css('stroke-width', '0.14px');
 		if (e === 'mousemove') {
 			$('#panel-title').html(p.name);
+            $('.bar').css('fill', '#a2cde2');
 			$(`.bar.${rounded}`).css('fill', '#2b6a88');
 		} else if (e === 'mouseout') {
-			$('#panel-title').html(null);
-			$(`.bar.${rounded}`).css('fill', '#a2cde2');
+            if (!!currentFeature) {
+                updatePanel(currentFeature, 'mousemove', mode);
+            } else {
+                $('#panel-title').html(null);
+                $('.bar').css('fill', '#a2cde2');
+                $('#stats').hide();
+            }
 		} else if (e === 'click') {
+            currentFeature = p;
 			$('.bar').css('fill', '#a2cde2');
 			$(`.bar.${rounded}`).css('fill', '#2b6a88');
 		}
@@ -85,6 +95,8 @@
             Object.keys(themes).forEach(i => {
                 $(`#${i}-stat`).html(stylizeFigure(p[i], i));
             });
+            $('#stats').show();
+            $(`.feature.${p.OBJECTID}`).css('stroke-width', '1.5px');
         }
 	}
 	
@@ -134,7 +146,6 @@
             p.wealth = p.income - p.income_state;
         }
         
-        let scales = {};
         Object.keys(themes).forEach(i => {
             let values = [];
             districts.forEach(d => values.push(d.properties[i]));
@@ -198,6 +209,7 @@
         
         $('#mode-select').on('change', function() {
 			newChart();
+            if (!!currentFeature) updatePanel(currentFeature, 'mouseout', $(this).val());
             dist.data(districts)
                 .transition()
                 .duration(1000)
